@@ -12,7 +12,7 @@
   --dialog-border-color: var(--color-gray-20);
   --dropdown-icon: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="292.4" height="292.4" viewBox="0 0 292 292"><path d="M287 197L159 69c-4-3-8-5-13-5s-9 2-13 5L5 197c-3 4-5 8-5 13s2 9 5 13c4 4 8 5 13 5h256c5 0 9-1 13-5s5-8 5-13-1-9-5-13z"/></svg>');
   --focus-highlight-color: #{$oc-blue-2};
-  --icon-fill-color: var(--color-on-surface);
+  --icon-fill-color: #FF3609;
   --icon-green-fill-color: #{$oc-green-9};
   --default-bg-color: #{$oc-white};
   --input-bg-color: #{$oc-white};
@@ -73,16 +73,16 @@
     0px 1px 2px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
 
   --space-factor: 0.25rem;
-  --text-primary-color: var(--color-on-surface);
+  --text-primary-color: #474747;
 
-  --color-selection: #6965db;
+  --color-selection: #FF3609;
 
   --color-icon-white: #{$oc-white};
 
-  --color-primary: #6965db;
-  --color-primary-darker: #5b57d1;
-  --color-primary-darkest: #4a47b1;
-  --color-primary-light: #e3e2fe;
+  --color-primary: #FF3609;
+  --color-primary-darker: #FF3609;
+  --color-primary-darkest: #FF3609;
+  --color-primary-light:#F1F1F1;
   --color-primary-light-darker: #d7d5ff;
 
   --color-gray-10: #f5f5f5;
@@ -135,25 +135,28 @@
   --border-radius-md: 0.375rem;
   --border-radius-lg: 0.5rem;
 
-  --color-surface-high: hsl(244, 100%, 97%);
+  --color-surface-high: #F1F1F1;
   --color-surface-mid: hsl(240 25% 96%);
-  --color-surface-low: hsl(240 25% 94%);
+  --color-surface-low: #ffff;
   --color-surface-lowest: #ffffff;
   --color-on-surface: #1b1b1f;
-  --color-brand-hover: #5753d0;
-  --color-on-primary-container: #030064;
-  --color-surface-primary-container: #e0dfff;
-  --color-brand-active: #4440bf;
+  --color-brand-hover: #FF3609 ;
+  --color-on-primary-container: #FF3609 ;
+  --color-surface-primary-container:#F1F1F1 ;
+  --color-brand-active: #FF3609 ;
   --color-border-outline: #767680;
   --color-border-outline-variant: #c5c5d0;
-  --color-surface-primary-container: #e0dfff;
+  --color-surface-primary-container: #F1F1F1;
 
   &.theme--dark {
     &.theme--dark-background-none {
       background: none;
     }
   }
-
+  .dropdown-menu-button svg{
+    color:#FF3609 !important;
+  }
+ 
   &.theme--dark {
     --theme-filter: #{$theme-filter};
     --button-destructive-bg-color: #5a0000;
@@ -240,11 +243,11 @@
     --color-surface-lowest: hsl(0, 0%, 7%);
     --color-on-surface: #e3e3e8;
     --color-brand-hover: #bbb8ff;
-    --color-on-primary-container: #e0dfff;
-    --color-surface-primary-container: #403e6a;
-    --color-brand-active: #d0ccff;
+    --color-on-primary-container: #FF3609;
+    // --color-surface-primary-container:#F1F1F1
+    --color-brand-active: #FF3609;
     --color-border-outline: #8e8d9c;
     --color-border-outline-variant: #46464f;
-    --color-surface-primary-container: #403e6a;
+    --color-surface-primary-container:  #F1F1F1 !important;
   }
 }

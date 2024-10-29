@@ -14,7 +14,6 @@ import {
   Theme,
 } from "./types";
 import { sanitizeHTMLAttribute } from "../data/url";
-
 type EmbeddedLink =
   | ({
       aspectRatio: { w: number; h: number };
@@ -25,35 +24,26 @@ type EmbeddedLink =
       | { type: "document"; srcdoc: (theme: Theme) => string }
     ))
   | null;
-
 const embeddedLinkCache = new Map<string, EmbeddedLink>();
-
 const RE_YOUTUBE =
   /^(?:http(?:s)?:\/\/)?(?:www\.)?youtu(?:be\.com|\.be)\/(embed\/|watch\?v=|shorts\/|playlist\?list=|embed\/videoseries\?list=)?([a-zA-Z0-9_-]+)(?:\?t=|&t=|\?start=|&start=)?([a-zA-Z0-9_-]+)?[^\s]*$/;
-
 const RE_VIMEO =
   /^(?:http(?:s)?:\/\/)?(?:(?:w){3}\.)?(?:player\.)?vimeo\.com\/(?:video\/)?([^?\s]+)(?:\?.*)?$/;
 const RE_FIGMA = /^https:\/\/(?:www\.)?figma\.com/;
-
 const RE_GH_GIST = /^https:\/\/gist\.github\.com\/([\w_-]+)\/([\w_-]+)/;
 const RE_GH_GIST_EMBED =
   /^<script[\s\S]*?\ssrc=["'](https:\/\/gist\.github\.com\/.*?)\.js["']/i;
-
 // not anchored to start to allow <blockquote> twitter embeds
 const RE_TWITTER =
   /(?:https?:\/\/)?(?:(?:w){3}\.)?(?:twitter|x)\.com\/[^/]+\/status\/(\d+)/;
 const RE_TWITTER_EMBED =
   /^<blockquote[\s\S]*?\shref=["'](https?:\/\/(?:twitter|x)\.com\/[^"']*)/i;
-
 const RE_VALTOWN =
   /^https:\/\/(?:www\.)?val\.town\/(v|embed)\/[a-zA-Z_$][0-9a-zA-Z_$]+\.[a-zA-Z_$][0-9a-zA-Z_$]+/;
-
 const RE_GENERIC_EMBED =
   /^<(?:iframe|blockquote)[\s\S]*?\s(?:src|href)=["']([^"']*)["'][\s\S]*?>$/i;
-
 const RE_GIPHY =
   /giphy.com\/(?:clips|embed|gifs)\/[a-zA-Z0-9]*?-?([a-zA-Z0-9]+)(?:[^a-zA-Z0-9]|$)/;
-
 const ALLOWED_DOMAINS = new Set([
   "youtube.com",
   "youtu.be",
@@ -68,7 +58,6 @@ const ALLOWED_DOMAINS = new Set([
   "val.town",
   "giphy.com",
 ]);
-
 const ALLOW_SAME_ORIGIN = new Set([
   "youtube.com",
   "youtu.be",
@@ -80,26 +69,22 @@ const ALLOW_SAME_ORIGIN = new Set([
   "*.simplepdf.eu",
   "stackblitz.com",
 ]);
-
+// Removed allowSameOrigin logic
+const sandboxSettings = { allowSameOrigin: true }; // Adjust as needed
 const createSrcDoc = (body: string) => {
   return `<html><body>${body}</body></html>`;
 };
-
 export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
   if (!link) {
     return null;
   }
-
   if (embeddedLinkCache.has(link)) {
     return embeddedLinkCache.get(link)!;
   }
-
   const originalLink = link;
-
   const allowSameOrigin = ALLOW_SAME_ORIGIN.has(
     matchHostname(link, ALLOW_SAME_ORIGIN) || "",
   );
-
   let type: "video" | "generic" = "generic";
   let aspectRatio = { w: 560, h: 840 };
   const ytLink = link.match(RE_YOUTUBE);
@@ -126,16 +111,15 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
       link,
       aspectRatio,
       type,
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     });
     return {
       link,
       aspectRatio,
       type,
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     };
   }
-
   const vimeoLink = link.match(RE_VIMEO);
   if (vimeoLink?.[1]) {
     const target = vimeoLink?.[1];
@@ -151,11 +135,10 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
       link,
       aspectRatio,
       type,
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     });
-    return { link, aspectRatio, type, warning, sandbox: { allowSameOrigin } };
+    return { link, aspectRatio, type, warning, sandbox: sandboxSettings };
   }
-
   const figmaLink = link.match(RE_FIGMA);
   if (figmaLink) {
     type = "generic";
@@ -167,11 +150,10 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
       link,
       aspectRatio,
       type,
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     });
-    return { link, aspectRatio, type, sandbox: { allowSameOrigin } };
+    return { link, aspectRatio, type, sandbox: sandboxSettings };
   }
-
   const valLink = link.match(RE_VALTOWN);
   if (valLink) {
     link =
@@ -180,11 +162,10 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
       link,
       aspectRatio,
       type,
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     });
-    return { link, aspectRatio, type, sandbox: { allowSameOrigin } };
+    return { link, aspectRatio, type, sandbox: sandboxSettings };
   }
-
   if (RE_TWITTER.test(link)) {
     const postId = link.match(RE_TWITTER)![1];
     // the embed srcdoc still supports twitter.com domain only.
@@ -194,7 +175,6 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
     const safeURL = sanitizeHTMLAttribute(
       `https://twitter.com/x/status/${postId}`,
     );
-
     const ret: EmbeddedLink = {
       type: "document",
       srcdoc: (theme: string) =>
@@ -202,12 +182,11 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
           `<blockquote class="twitter-tweet" data-dnt="true" data-theme="${theme}"><a href="${safeURL}"></a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>`,
         ),
       aspectRatio: { w: 480, h: 480 },
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     };
     embeddedLinkCache.set(originalLink, ret);
     return ret;
   }
-
   if (RE_GH_GIST.test(link)) {
     const [, user, gistId] = link.match(RE_GH_GIST)!;
     const safeURL = sanitizeHTMLAttribute(
@@ -225,21 +204,19 @@ export const getEmbedLink = (link: string | null | undefined): EmbeddedLink => {
           </style>
         `),
       aspectRatio: { w: 550, h: 720 },
-      sandbox: { allowSameOrigin },
+      sandbox: sandboxSettings,
     };
     embeddedLinkCache.set(link, ret);
     return ret;
   }
-
   embeddedLinkCache.set(link, {
     link,
     aspectRatio,
     type,
-    sandbox: { allowSameOrigin },
+    sandbox: sandboxSettings,
   });
-  return { link, aspectRatio, type, sandbox: { allowSameOrigin } };
+  return { link, aspectRatio, type, sandbox: sandboxSettings };
 };
-
 export const isEmbeddableOrLabel = (
   element: NonDeletedExcalidrawElement,
 ): Boolean => {
@@ -254,7 +231,6 @@ export const isEmbeddableOrLabel = (
   }
   return false;
 };
-
 export const createPlaceholderEmbeddableLabel = (
   element: ExcalidrawEmbeddableElement,
 ): ExcalidrawElement => {
@@ -265,12 +241,10 @@ export const createPlaceholderEmbeddableLabel = (
     element.width / 30,
   );
   const fontFamily = FONT_FAMILY.Helvetica;
-
   const fontString = getFontString({
     fontSize,
     fontFamily,
   });
-
   return newTextElement({
     x: element.x + element.width / 2,
     y: element.y + element.height / 2,
@@ -285,7 +259,6 @@ export const createPlaceholderEmbeddableLabel = (
     angle: element.angle ?? 0,
   });
 };
-
 export const actionSetEmbeddableAsActiveTool = register({
   name: "setEmbeddableAsActiveTool",
   trackEvent: { category: "toolbar" },
@@ -293,12 +266,10 @@ export const actionSetEmbeddableAsActiveTool = register({
     const nextActiveTool = updateActiveTool(appState, {
       type: "embeddable",
     });
-
     setCursorForShape(app.canvas, {
       ...appState,
       activeTool: nextActiveTool,
     });
-
     return {
       elements,
       appState: {
@@ -311,7 +282,6 @@ export const actionSetEmbeddableAsActiveTool = register({
     };
   },
 });
-
 const matchHostname = (
   url: string,
   /** using a Set assumes it already contains normalized bare domains */
@@ -319,14 +289,11 @@ const matchHostname = (
 ): string | null => {
   try {
     const { hostname } = new URL(url);
-
     const bareDomain = hostname.replace(/^www\./, "");
-
     if (allowedHostnames instanceof Set) {
       if (ALLOWED_DOMAINS.has(bareDomain)) {
         return bareDomain;
       }
-
       const bareDomainWithFirstSubdomainWildcarded = bareDomain.replace(
         /^([^.]+)/,
         "*",
@@ -336,7 +303,6 @@ const matchHostname = (
       }
       return null;
     }
-
     const bareAllowedHostname = allowedHostnames.replace(/^www\./, "");
     if (bareDomain === bareAllowedHostname) {
       return bareAllowedHostname;
@@ -346,29 +312,24 @@ const matchHostname = (
   }
   return null;
 };
-
 export const extractSrc = (htmlString: string): string => {
   const twitterMatch = htmlString.match(RE_TWITTER_EMBED);
   if (twitterMatch && twitterMatch.length === 2) {
     return twitterMatch[1];
   }
-
   const gistMatch = htmlString.match(RE_GH_GIST_EMBED);
   if (gistMatch && gistMatch.length === 2) {
     return gistMatch[1];
   }
-
   if (RE_GIPHY.test(htmlString)) {
     return `https://giphy.com/embed/${RE_GIPHY.exec(htmlString)![1]}`;
   }
-
   const match = htmlString.match(RE_GENERIC_EMBED);
   if (match && match.length === 2) {
     return match[1];
   }
   return htmlString;
 };
-
 export const embeddableURLValidator = (
   url: string | null | undefined,
   validateEmbeddable: ExcalidrawProps["validateEmbeddable"],
@@ -393,13 +354,23 @@ export const embeddableURLValidator = (
           if (url.match(domain)) {
             return true;
           }
-        } else if (matchHostname(url, domain)) {
-          return true;
+        } else {
+          // Directly accept the URL if it's valid
+          try {
+            new URL(url);
+            return true;
+          } catch {
+            continue;
+          }
         }
       }
       return false;
     }
   }
-
-  return !!matchHostname(url, ALLOWED_DOMAINS);
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
 };

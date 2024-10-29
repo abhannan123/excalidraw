@@ -1,6 +1,6 @@
 {
-  "name": "@excalidraw/excalidraw",
-  "version": "0.17.6",
+  "name": "excalidraw-codifiedlabs",
+  "version": "0.1.0",
   "main": "main.js",
   "types": "types/packages/excalidraw/index.d.ts",
   "files": [
